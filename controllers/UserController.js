@@ -4,7 +4,7 @@ class UserController {
 
         this.formEl = document.getElementById(formId);
         this.tableEl = document.getElementById(tableId);
-        
+
         this.onSubmit();
 
     }
@@ -15,28 +15,36 @@ class UserController {
 
             let values = this.getValues();
 
-            this.getPhoto((content) => {
-                values.photo = content;
-                this.addLine(values);
-            });            
+            this.getPhoto().then((photo) => {
+                values.photo = photo;
+                this.addLine(values)
+            }).catch((error) => {
+                console.error(error);
+            });
         });
     }
 
-    getPhoto(callback){
+    getPhoto() {
 
-        let fileReader = new FileReader();
-        
-        let elements = [...this.formEl.elements].filter(item => {
-            if(item.name === 'photo') return item;
+        return new Promise((resolve, reject) => {
+            let fileReader = new FileReader();
+
+            let elements = [...this.formEl.elements].filter(item => {
+                if (item.name === 'photo') return item;
+            });
+
+            let file = elements[0].files[0]
+
+            fileReader.onload = () => {
+                resolve(fileReader.result);
+            }
+
+            fileReader.onerror = () => {
+                reject(e);
+            }
+
+            fileReader.readAsDataURL(file);
         });
-
-        let file = elements[0].files[0]
-
-        fileReader.onload = () => {
-            callback(fileReader.result);
-        }
-
-        fileReader.readAsDataURL(file);
 
     }
 
@@ -53,7 +61,7 @@ class UserController {
                 user[field.name] = field.value;
             }
         });
-        
+
         return new User(user.name, user.gender, user.birth, user.country, user.email, user.password, user.photo, user.admin);
 
     }
