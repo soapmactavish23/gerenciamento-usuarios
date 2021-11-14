@@ -67,15 +67,19 @@ class User {
 
     getNewID() {
 
-        if (!window.id) window.id = 0;
+        let usersID = parseInt(localStorage.getItem("usersID"));
+        
+        if(!usersID > 0) usersID = 0;
 
-        id++;
+        usersID++;
 
-        return id;
+        localStorage.setItem("usersID", usersID);
+
+        return usersID;
 
     }
 
-    getUsersStorage() {
+    static getUsersStorage() {
         let users = [];
 
         if (localStorage.getItem("users")) {
@@ -86,8 +90,8 @@ class User {
     }
 
     save() {
-        
-        let users = this.getUsersStorage();
+
+        let users = User.getUsersStorage();
 
         if (this.id > 0) {
             users.map(u => {
@@ -100,6 +104,24 @@ class User {
             this._id = this.getNewID();
             users.push(this);
         }
+
+        localStorage.setItem("users", JSON.stringify(users));
+
+    }
+
+    remove() {
+
+        let users = User.getUsersStorage();
+
+        users.forEach((userData, index) => {
+            
+            if (this._id == userData._id) {
+
+                users.splice(index, 1);
+
+            }
+
+        });
 
         localStorage.setItem("users", JSON.stringify(users));
 
